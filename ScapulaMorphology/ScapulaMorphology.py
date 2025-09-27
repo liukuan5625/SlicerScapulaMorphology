@@ -33,67 +33,19 @@ class ScapulaMorphology(ScriptedLoadableModule):
         # TODO: set categories (folders where the module shows up in the module selector)
         self.parent.categories = [translate("qSlicerAbstractCoreModule", "Segmentation")]
         self.parent.dependencies = []  # TODO: add here list of module names that this module requires
-        self.parent.contributors = ["Kuan Liu (Ruijin hospital, SJTU)"]  # TODO: replace with "Firstname Lastname (Organization)"
+        self.parent.contributors = [
+            "Kuan Liu (Ruijin hospital, SJTU)"]  # TODO: replace with "Firstname Lastname (Organization)"
         # TODO: update with short description of the module and a link to online module documentation
         # _() function marks text as translatable to other languages
         self.parent.helpText = _("""
 This is an example of scripted loadable module bundled in an extension.
-See more information in <a href="https://github.com/organization/projectname#ScapulaMorphology">module documentation</a>.
+See more information in <a href="https://github.com/liukuan5625/SlicerScapulaMorphology">module documentation</a>.
 """)
         # TODO: replace with organization, grant and thanks
         self.parent.acknowledgementText = _("""
-This file was originally developed by Jean-Christophe Fillion-Robin, Kitware Inc., Andras Lasso, PerkLab,
-and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
+This file was originally developed by Kuan Liu, Ruijin Hospital, Shanghai Jiaotong University School of Medicine.
 """)
 
-##################!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # Additional initialization step after application startup is complete
-        slicer.app.connect("startupCompleted()", registerSampleData)
-
-def registerSampleData():
-    """
-    Add data sets to Sample Data module.
-    """
-    # It is always recommended to provide sample data for users to make it easy to try the module,
-    # but if no sample data is available then this method (and associated startupCompeted signal connection) can be removed.
-
-    import SampleData
-    iconsPath = os.path.join(os.path.dirname(__file__), 'Resources/Icons')
-
-    # To ensure that the source code repository remains small (can be downloaded and installed quickly)
-    # it is recommended to store data sets that are larger than a few MB in a Github release.
-
-    # CBCTToothSegmentation1
-    SampleData.SampleDataLogic.registerCustomSampleDataSource(
-        # Category and sample name displayed in Sample Data module
-        category='rawSegmentation',
-        sampleName='rawSegmentation1',
-        # Thumbnail should have size of approximately 260x280 pixels and stored in Resources/Icons folder.
-        # It can be created by Screen Capture module, "Capture all views" option enabled, "Number of images" set to "Single".
-        thumbnailFileName=os.path.join(iconsPath, 'CBCTToothSegmentation1.png'),
-        # Download URL and target file name
-        uris="https://github.com/liukuan5625/SlicerScapulaMorphology/releases/download/DataSample/CT_shoulder.nii.gz",
-        fileNames='CT_shoulder.nii.gz',
-        # Checksum to ensure file integrity. Can be computed by this command:
-        #  import hashlib; print(hashlib.sha256(open(filename, "rb").read()).hexdigest())
-        checksums='sha256:a68167ddf54b7ffe38903c7c02318713a8aacceb37de0bdab0243c495629db15',
-        # This node name will be used when the data set is loaded
-        nodeNames='rawToothSegmentation1'
-    )
-
-    '''# CBCTToothSegmentation2
-    SampleData.SampleDataLogic.registerCustomSampleDataSource(
-        # Category and sample name displayed in Sample Data module
-        category='CBCTToothSegmentation',
-        sampleName='CBCTToothSegmentation2',
-        thumbnailFileName=os.path.join(iconsPath, 'CBCTToothSegmentation2.png'),
-        # Download URL and target file name
-        uris="https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/1a64f3f422eb3d1c9b093d1a18da354b13bcf307907c66317e2463ee530b7a97",
-        fileNames='CBCTToothSegmentation2.nrrd',
-        checksums='SHA256:1a64f3f422eb3d1c9b093d1a18da354b13bcf307907c66317e2463ee530b7a97',
-        # This node name will be used when the data set is loaded
-        nodeNames='CBCTToothSegmentation2'
-    )'''
 
 #
 # ScapulaMorphologyWidget
@@ -113,7 +65,6 @@ class ScapulaMorphologyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin)
         self._parameterNode = None
         self._parameterNodeGuiTag = None
         self._updatingGUIFromParameterNode = False
-
 
     def setup(self) -> None:
         """Called when the user opens the module the first time and the widget is initialized."""
@@ -289,7 +240,8 @@ class ScapulaMorphologyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin)
             self.ui.applyButton.enabled = False
 
         if humerusVolume or scapulaVolume:
-            self.ui.outputSegmentationSelector.baseName = _("{volume_name} segmentation").format(volume_name=scapulaVolume.GetName())
+            self.ui.outputSegmentationSelector.baseName = _("{volume_name} segmentation").format(
+                volume_name=scapulaVolume.GetName())
 
         # All the GUI updates are done
         self._updatingGUIFromParameterNode = False
@@ -329,19 +281,19 @@ class ScapulaMorphologyWidget(ScriptedLoadableModuleWidget, VTKObservationMixin)
             # IS range
             current_min = self.ui.adjustISRange.minimumValue
             current_max = self.ui.adjustISRange.maximumValue
-            print(current_min, current_max, self.bounds[-2], self.bounds[-1])
             if current_min == self.bounds[-2] and current_max == self.bounds[-1]:
                 current_min = False
                 current_max = False
             if current_min == current_max:
                 current_min = False
                 current_max = False
-            print(current_min, current_max, self.bounds[-2], self.bounds[-1])
+
             # Compute output
             self.logic.process(self.ui.scapulaInputbox.currentNode(), self.ui.humerusInputbox.currentNode(),
                                self.ui.outputSegmentationSelector.currentNode(),
                                self.ui.heatmapCheckBox.checked, self.ui.cpuCheckBox.checked,
                                current_min, current_max)
+
 
 #
 # ScapulaMorphologyLogic
@@ -409,21 +361,27 @@ class ScapulaMorphologyLogic(ScriptedLoadableModuleLogic):
         """Download model from shared google drive link"""
 
         import SampleData
-        import os, qt
+        import os
 
-        url = "https://drive.google.com/uc?export=download&id=1J2DEBGKxbNWJ6KM2dZ8NTI3KaoAF3q4e"
-        # V1: url = "https://drive.usercontent.google.com/download?id=1a0uxBQmVkCAaqKNJiFEo3NKAfCv5z0SL&export=download&authuser=0"
-        destination_folder = qt.QDir().tempPath()
-        modelPath = os.path.join(destination_folder, 'pretrainedmodel-DentalCBCTSegmentation.pth')
-        name = 'pretrainedmodel-DentalCBCTSegmentation.pth'
-        if not os.path.exists(modelPath):
-            print("Downloading pretrained model to local temp directory...")
+        url2D = "https://github.com/liukuan5625/SlicerScapulaMorphology/releases/download/v1.0.0/model_2d.pt"
+        url3D = "https://github.com/liukuan5625/SlicerScapulaMorphology/releases/download/v1.0.0/model_3d.pt"
+        current_file_path = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file_path)
+        destination_folder = os.path.join(current_dir, 'Scripts')
+        model2dPath = os.path.join(destination_folder, 'model_2d.pt')
+        model3dPath = os.path.join(destination_folder, 'model_3d.pt')
+        name2d = 'model_2d.pt'
+        name3d = 'model_3d.pt'
+        if not os.path.exists(model2dPath) and not os.path.exists(model3dPath):
+            logging.info(
+                "If download fail, visit https://github.com/liukuan5625/SlicerScapulaMorphology/releases to download "
+                "wights and samples, and place to filefolder ./ScapulaMorphology/Scripts.")
+            print("Downloading pretrained model to local directory...")
             print("...")
-            SampleData.SampleDataLogic().downloadFile(url, destination_folder, name, checksum=None)
+            SampleData.SampleDataLogic().downloadFile(url2D, destination_folder, name2d, checksum=None)
+            SampleData.SampleDataLogic().downloadFile(url3D, destination_folder, name3d, checksum=None)
             print('Done.')
-        print('Pre-trained model saved to: ', modelPath)
-
-        return modelPath
+        print('Pre-trained model saved to: ', model2dPath, model3dPath)
 
     def setDefaultParameters(self, parameterNode):
         """
@@ -476,6 +434,7 @@ class ScapulaMorphologyLogic(ScriptedLoadableModuleLogic):
         if not self.dependenciesInstalled:
             with slicer.util.tryWithErrorDisplay("Failed to install required dependencies.", waitCursor=True):
                 self.setupPythonRequirements()
+                self.downloadModel()
 
         if not scapulaVolume:
             raise ValueError("scapulaVolume is invalid")
@@ -489,10 +448,10 @@ class ScapulaMorphologyLogic(ScriptedLoadableModuleLogic):
         # Create new empty folder
         tempFolder = slicer.util.tempDirectory()
 
-        scaInputFile = tempFolder+"/scapula-input.nrrd"
-        humInputFile = tempFolder+"/humerus-input.nrrd"
-        output2DSegmentationFile = tempFolder+"/2d_glenoid.nii.gz"
-        output3DSegmentationFile = tempFolder+"/3d_landmarks.csv"
+        scaInputFile = tempFolder + "/scapula-input.nrrd"
+        humInputFile = tempFolder + "/humerus-input.nrrd"
+        output2DSegmentationFile = tempFolder + "/2d_glenoid.nii.gz"
+        output3DSegmentationFile = tempFolder + "/3d_landmarks.csv"
 
         # Get Python executable path
         import shutil
@@ -508,7 +467,7 @@ class ScapulaMorphologyLogic(ScriptedLoadableModuleLogic):
                            heat, cpu, ISmin, ISmax, scapulaMorphologyCommand)
 
         stopTime = time.time()
-        logging.info(_("Processing completed in {time_elapsed:.2f} seconds").format(time_elapsed=stopTime-startTime))
+        logging.info(_("Processing completed in {time_elapsed:.2f} seconds").format(time_elapsed=stopTime - startTime))
 
         if self.clearOutputFolder:
             logging.info(_("Cleaning up temporary folder..."))
@@ -614,3 +573,63 @@ class ScapulaMorphologyTest(ScriptedLoadableModuleTest):
     def runTest(self):
         """Run as few or as many tests as needed here."""
         self.setUp()
+        self.test_ScapulaMorphology()
+
+    def test_ScapulaMorphology(self):
+        """ Ideally you should have several levels of tests.  At the lowest level
+        tests should exercise the functionality of the logic with different inputs
+        (both valid and invalid).  At higher levels your tests should emulate the
+        way the user would interact with your code and confirm that it still works
+        the way you intended.
+        One of the most important features of the tests is that it should alert other
+        developers when their changes will have an impact on the behavior of your
+        module.  For example, if a developer removes a feature that you depend on,
+        your test should break so they know that the feature is needed.
+        """
+
+        self.delayDisplay("Starting the test")
+
+        # Get/create input data
+        import SampleData
+        import os
+        urlraw = "https://github.com/liukuan5625/SlicerScapulaMorphology/releases/download/v1.0.0/sample_raw.nii.gz"
+        urlsca = "https://github.com/liukuan5625/SlicerScapulaMorphology/releases/download/v1.0.0/sample_scapula.nii.gz"
+        urlhum = "https://github.com/liukuan5625/SlicerScapulaMorphology/releases/download/v1.0.0/sample_humerus.nii.gz"
+        current_file_path = os.path.abspath(__file__)
+        current_dir = os.path.dirname(current_file_path)
+        destination_folder = os.path.join(current_dir, 'Scripts')
+        samplerawPath = os.path.join(destination_folder, 'sample_raw.nii.gz')
+        samplescaPath = os.path.join(destination_folder, 'sample_scapula.nii.gz')
+        samplehumPath = os.path.join(destination_folder, 'sample_humerus.nii.gz')
+        nameraw = 'sample_raw.nii.gz'
+        namesca = 'sample_scapula.nii.gz'
+        namehum = 'sample_humerus.nii.gz'
+        self.delayDisplay('Download sample')
+        if not os.path.exists(samplerawPath):
+            SampleData.SampleDataLogic().downloadFile(urlraw, destination_folder, nameraw, checksum=None)
+        if not os.path.exists(samplescaPath):
+            SampleData.SampleDataLogic().downloadFile(urlsca, destination_folder, namesca, checksum=None)
+        if not os.path.exists(samplehumPath):
+            SampleData.SampleDataLogic().downloadFile(urlhum, destination_folder, namehum, checksum=None)
+        print('Sample data saved to: ', destination_folder)
+
+        [success, rawVolume] = slicer.util.loadVolume(samplerawPath, returnNode=True)
+        [success, scapulaVolume] = slicer.util.loadSegmentation(samplescaPath, returnNode=True)
+        [success, humerusVolume] = slicer.util.loadSegmentation(samplehumPath, returnNode=True)
+        outputSegmentation = slicer.mrmlScene.AddNewNodeByClass('vtkMRMLSegmentationNode')
+
+        # Test the module logic
+        testLogic = True
+
+        if testLogic:
+            logic = ScapulaMorphologyLogic()
+            self.delayDisplay('Set up required Python packages')
+            logic.setupPythonRequirements()
+            self.delayDisplay('Compute output')
+            logic.process(scapulaVolume, humerusVolume, outputSegmentation,
+                          False, False, False, False)
+
+        else:
+            logging.warning("test_TotalSegmentator1 logic testing was skipped")
+
+        self.delayDisplay('Test passed')

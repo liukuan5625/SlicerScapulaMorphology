@@ -372,7 +372,7 @@ class ScapulaMorphologyLogic(ScriptedLoadableModuleLogic):
         model3dPath = os.path.join(destination_folder, 'model_3d.pt')
         name2d = 'model_2d.pt'
         name3d = 'model_3d.pt'
-        if not os.path.exists(model2dPath) and not os.path.exists(model3dPath):
+        if not os.path.exists(model2dPath) or not os.path.exists(model3dPath):
             logging.info(
                 "If download fail, visit https://github.com/liukuan5625/SlicerScapulaMorphology/releases to download "
                 "wights and samples, and place to filefolder ./ScapulaMorphology/Scripts.")
@@ -434,7 +434,7 @@ class ScapulaMorphologyLogic(ScriptedLoadableModuleLogic):
         if not self.dependenciesInstalled:
             with slicer.util.tryWithErrorDisplay("Failed to install required dependencies.", waitCursor=True):
                 self.setupPythonRequirements()
-                self.downloadModel()
+        self.downloadModel()
 
         if not scapulaVolume:
             raise ValueError("scapulaVolume is invalid")

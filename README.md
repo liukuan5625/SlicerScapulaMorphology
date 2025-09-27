@@ -2,8 +2,8 @@
  by Kuan Liu et al.
 
 ## Introduction
-This repository is the 3D Slicer plugin for our paper "Deep learning-based Scapular morphology assessment pipeline for glenoid segmentation and landmarks localization".
-Corresponding training and inference codes are accessible at [Scapular-Morphology-slicer](https://github.com/liukuan5625/SlicerScapulaMorphology).
+3D Slicer plugin for scapular morphology assessment (glenoid segmentation and landmarks localization) based on deep-learning methods within 30 seconds.
+Corresponding training and inference codes are accessible at [Scapular-Morphology](https://github.com/liukuan5625/ScapulaMorphology).
 ![Overall Pipeline](./Screenshot01.png)
 
 
